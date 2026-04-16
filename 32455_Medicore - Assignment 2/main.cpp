@@ -57,7 +57,7 @@ Patient* pat1 = new Patient("Zubair", "2002-12-12", "PAT-101", "0312-9988776", "
     for (Person *p : people)
     {
         string summary = p->getSummary();
-        cout << summary << endl;
+        // cout << summary << endl;
         if (summary.length() == 0)
             allChecksPass = false;
     }
@@ -94,7 +94,7 @@ Patient* pat2 = new Patient("Hassan", "1998-05-05", "P-102", "0300-5554443", "Su
 
     Bill combined = b1 + b2;
 
-    cout << "Combined Summary: " << combined << endl;
+    // cout << "Combined Summary: " << combined << endl;
     Bill expectedCombined(15000.0, 9100.0, 1000.0);
     check("TC-02.1 ", combined == expectedCombined);
     check("TC-02.2 ", !(b1 == b2));
