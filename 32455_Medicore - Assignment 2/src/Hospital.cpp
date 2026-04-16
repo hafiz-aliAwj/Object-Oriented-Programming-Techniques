@@ -3,23 +3,25 @@
 Hospital::Hospital(string name) : hospitalName(name) {}
 
 Hospital::~Hospital() {
-    for (Ward* w : wards) delete w;
     for (Staff* s : staffMembers) delete s;
+    for (Ward* w : wards) delete w;
+    for (Patient* p : admittedPatients) delete p;
+    for (Patient* p : archivedPatients) delete p;
 }
-
 
 vector<Patient*> Hospital::getAdmittedPointers() {
     vector<Patient*> ptrs;
-    for (auto& p : admittedPatients) ptrs.push_back(&p);
-    return ptrs;
+    for (auto p : admittedPatients) ptrs.push_back(p);
+        return ptrs;
 }
 
-void Hospital::admit(Patient p) { admittedPatients.push_back(p); }
 
+void Hospital::admit(Patient p) { 
+    admittedPatients.push_back(new Patient(p)); }
 bool Hospital::discharge(string patientID) {
     for (auto it = admittedPatients.begin(); it != admittedPatients.end(); ++it) {
-        if (it->getID() == patientID) {
-            it->discharge();
+        if ((*it)->getID() == patientID) {
+            (*it)->discharge();
             archivedPatients.push_back(std::move(*it));
             admittedPatients.erase(it);
             return true;
@@ -29,23 +31,22 @@ bool Hospital::discharge(string patientID) {
 }
 
 bool Hospital::isAdmitted(string patientID) const {
-    for (const auto& p : admittedPatients) {
-        if (p.getID() == patientID) return true;
+    for (Patient* p : admittedPatients) {
+        if (p->getID() == patientID) return true; 
     }
     return false;
 }
 
 bool Hospital::isArchived(string patientID) const {
     for (const auto& p : archivedPatients) {
-        if (p.getID() == patientID) return true;
+        if (p->getID() == patientID) return true;
     }
     return false;
 }
 
 Patient* Hospital::getPatientRecord(string patientID) {
-    for (auto& p : admittedPatients) {
-        if (p.getID() == patientID) return &p;
-    }
+    for (Patient* p : admittedPatients) {
+        if (p->getID() == patientID) return p; }
     return nullptr;
 }
 
@@ -71,10 +72,10 @@ double Hospital::getWardRevenue(string wardName) {
 
 vector<Patient*> Hospital::getStaffPatientHistory(string staffName) {
     vector<Patient*> history = getAdmittedPointers();
-    for (auto& p : archivedPatients) history.push_back(&p);
+    for (auto& p : archivedPatients) history.push_back(p);
     return ReportGenerator::getPatientsByStaff(staffName, history);
 }
 
 string Hospital::getName() const { return hospitalName; }
-const vector<Patient>& Hospital::getAdmittedPatients() const { return admittedPatients; }
-const vector<Patient>& Hospital::getArchivedPatients() const { return archivedPatients; }
+const vector<Patient*>& Hospital::getAdmittedPatients() const { return admittedPatients; }
+const vector<Patient*>& Hospital::getArchivedPatients() const { return archivedPatients; }

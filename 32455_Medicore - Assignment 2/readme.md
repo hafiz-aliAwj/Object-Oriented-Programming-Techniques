@@ -1,53 +1,193 @@
-# MediCore: Hospital Management System
+# 🏥 MediCore Hospital Management System
 
-**MediCore** is a high-performance, object-oriented hospital management system developed in **C++17**. It manages patient records, hospital staff, ward occupancy, billing, and appointment scheduling with a focus on manual memory management, polymorphic design, and efficient data handling.
+A comprehensive **Object-Oriented C++ Hospital Management System** designed to simulate real-world hospital operations including patient management, staff handling, ward allocation, billing, and appointment scheduling.
 
-## 🏗 Project Structure
+---
 
-The project follows a **Modular Directory Structure** to separate concerns and improve maintainability, following the Package-by-Feature pattern:
+## 📌 Features
 
-* **/headers**: Class definitions and interfaces.
-    * `/Staff`: Base `Staff`, `GP`, `Surgeon`, and `Nurse`.
-    * `/Ward`: Base `Ward`, `ICU`, `GeneralWard`, and `SurgicalWard`.
-    * `/Appointment`: `Appointment` and `AppointmentBook`.
-* **/src**: Implementation logic.
-    * Follows the exact subdirectory mapping as the headers.
+- 👨‍⚕️ **Staff Management**
+  - Supports multiple staff types: GP, Surgeon, Nurse
+  - Polymorphic billing rates using virtual functions
 
-## 🚀 Key Features
+- 🧑‍🤝‍🧑 **Patient Management**
+  - Admission & discharge system
+  - Treatment tracking
+  - Billing generation
 
-### 1. Polymorphic Personnel Management (Requirement 2.1)
-Utilizes a deep inheritance hierarchy starting from an abstract `Person` class.
-* **Staff Roles:** GPs (Consultation fees), Surgeons (Operation fees), and Nurses (Ward care fees).
-* **Virtual Summaries:** A polymorphic `getSummary()` call provides a unique profile format for every person type (Patient vs. Staff roles).
+- 🏨 **Ward Management**
+  - General Ward, ICU, Surgical Ward
+  - Admission rules based on patient condition
+  - Occupancy tracking and comparison
 
-### 2. Rule-Based Ward Admission (Requirement 2.2)
-Wards use a **Template Method Pattern** to validate admissions:
-* **Logic:** The base `Ward::addPatient` checks capacity and then delegates clinical criteria to the virtual `canAccept()` function.
-* **ICU:** Admits only patients with "Critical" flags.
-* **Surgical Ward:** Admits only patients requiring surgery.
-* **Occupancy Comparison:** Wards can be compared using standard operators (`<`, `>`, `==`) based on their current occupancy percentage.
+- 📅 **Appointment Scheduling**
+  - Prevents double booking
+  - Staff & patient schedules
 
-### 3. Financial & Billing Engine (Requirement 2.3)
-Automated itemized billing upon patient discharge:
-* **Components:** Treatment costs + Ward stay fees (Daily Rate × Days) + PKR 500 Admin Fee.
-* **Operator Overloading:** * `+` : Combines bills for patients moving across multiple wards.
-    * `==` : Compares financial totals.
-    * `<<` : Generates a professional, itemized receipt.
+- 💰 **Billing System**
+  - Operator overloading (`+`, `==`)
+  - Itemized bill generation
 
-### 4. Conflict-Aware Scheduling (Requirement 2.4)
-The `AppointmentBook` manages complex scheduling logic:
-* **Double-Booking Protection:** Rejects any appointment where a staff member is already booked for the same date and time slot.
-* **Overlap Logic:** `TimeSlot::overlapsWith` ensures that even partial overlaps are caught.
+- 📊 **Reporting System**
+  - Lambda-based filtering and sorting
+  - Revenue calculation per ward
 
-### 5. Functional Query System (Requirement 2.5)
-The system satisfies reporting requirements using **Lambdas and Function Pointers** to ensure flexibility without hard-coded loops:
-* **Filtering:** By diagnosis, admission date, or department.
-* **Sorting:** By surname, admission date, or total bill amount.
-* **Revenue Tracking:** Calculates total income generated from discharged patients per specific ward.
+---
 
-## 🛠 Compilation and Execution
+## 🧱 System Design
 
-The project is strictly compliant with **C++17** standards. To compile the entire system, navigate to the root directory and run:
+The system follows strong **Object-Oriented Programming principles**:
+
+- **Inheritance**
+- **Polymorphism**
+- **Encapsulation**
+- **Composition**
+
+---
+
+## 🧬 Class Hierarchy Overview
+
+
+Person
+├── Staff
+│ ├── GP
+│ ├── Surgeon
+│ └── Nurse
+└── Patient
+
+Ward (Abstract)
+├── GeneralWard
+├── ICU
+└── SurgicalWard
+
+Hospital
+├── Manages Patients
+├── Manages Staff
+├── Manages Wards
+└── Uses AppointmentBook
+
+AppointmentBook
+└── Stores Appointment
+
+ReportGenerator
+└── Utility class
+
+
+---
+
+## 🧠 Key Design Decisions
+
+### 1. Template Method Pattern (Ward Admission)
+The `Ward::addPatient()` function defines a fixed workflow while delegating admission criteria to `canAccept()`.  
+This ensures consistency while allowing specialization in ICU and Surgical wards.
+
+---
+
+### 2. Polymorphism Instead of `dynamic_cast`
+Pure virtual functions like `getBillingRate()` are used to achieve runtime polymorphism.  
+This removes the need for type-checking and keeps the system clean and extensible.
+
+---
+
+### 3. Value Semantics for Patient Data
+Patient treatments are stored using `std::vector`, ensuring:
+- Automatic memory management
+- No manual deletion required
+
+---
+
+### 4. Lambda-Based Reporting
+Filtering and sorting are implemented using lambdas and `std::function`, allowing:
+- Flexible queries
+- No modification to core classes
+
+---
+
+### 5. Operator Overloading (Billing)
+The `Bill` class overloads:
+- `+` → Combine bills
+- `==` → Compare bills
+
+This improves readability and usability.
+
+---
+
+### 6. Separation of Responsibilities
+
+| Class | Responsibility |
+|------|--------|
+| Hospital | System controller |
+| Patient | Medical records |
+| Ward | Admission logic |
+| ReportGenerator | Data analytics |
+
+---
+
+## 🧾 Memory Ownership Model
+
+### Ownership Table
+
+| Resource | Owner | Allocation | Deletion |
+|----------|------|-----------|----------|
+| Ward Objects | Hospital | `new` in main | Hospital destructor |
+| Staff Objects | Hospital | `new` in main | Hospital destructor |
+| Patient Objects | Hospital | `admit()` | Hospital destructor |
+| Patient (test cases) | main | `new` | ❗ Must delete manually |
+| Treatment Data | Patient | `vector` | Automatic |
+| Appointments | AppointmentBook | `vector` | Automatic |
+
+---
+
+### Ownership Rules
+
+- ✅ **Hospital OWNS**
+  - Staff
+  - Wards
+  - Admitted & Archived Patients
+
+- ✅ **Patient OWNS**
+  - Treatments (`std::vector`)
+
+- ✅ **AppointmentBook OWNS**
+  - Appointments (by value)
+
+---
+
+### ⚠️ Important Note
+
+> Every dynamically allocated object (`new`) must have exactly ONE owner responsible for deleting it.
+
+Failure to follow this rule may result in:
+- Memory leaks
+- Double deletion crashes
+
+---
+
+## 🧪 Test Cases Covered
+
+- ✔️ Polymorphic display
+- ✔️ Billing operator overloading
+- ✔️ Ward comparison operators
+- ✔️ Admission rules validation
+- ✔️ Double booking prevention
+- ✔️ Copy independence
+- ✔️ Move semantics (archive system)
+- ✔️ Lambda-based filtering & sorting
+- ✔️ Staff billing polymorphism
+- ✔️ Ward revenue calculation
+
+---
+
+## ⚙️ Compilation & Execution
 
 ```bash
-g++ -std=c++17 main.cpp src/*.cpp src/Staff/*.cpp src/Ward/*.cpp src/Appointment/*.cpp -o MediCore
+g++ -std=c++17 main.cpp -o hospital
+./hospital
+🚀 Future Improvements
+Replace raw pointers with std::unique_ptr (modern C++)
+Add file persistence (save/load data)
+GUI-based interface
+Database integration
+👨‍💻 Author
+
+Ali AWJ

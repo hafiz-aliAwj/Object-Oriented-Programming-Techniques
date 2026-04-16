@@ -11,6 +11,7 @@ protected:
 
 public:
     Staff(string name, string dob, string id, string phone, double salary, string department);
+    virtual ~Staff(){}
     virtual double getBillingRate() const = 0; 
     string getDept() const;
 };

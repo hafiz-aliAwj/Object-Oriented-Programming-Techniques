@@ -36,23 +36,21 @@ int main()
     cout << "\n[TC-01] Polymorphic Display" << endl;
 
     // 1. Create one GP object
-    GP gp1("Dr. Ali", "1990-01-01", "GP-001", "0300-1234567", 120000.0, "OPD", 1500.0);
-
+    GP* gp1 = new GP("Dr. Ali", "1990-01-01", "GP-001", "0300-1234567", 120000.0, "OPD", 1500.0);
     // 2. Create one Surgeon object
-    Surgeon surg1("Dr. Nameer", "1985-05-20", "SUR-99", "0321-7654321", 250000.0, "Surgery", "Orthopedic", 45000.0);
+    Surgeon* surg1 = new Surgeon("Dr. Nameer", "1985-05-20", "SUR-99", "0321-7654321", 250000.0, "Surgery", "Orthopedic", 45000.0);
 
     // 3. Create one Nurse object
-    Nurse nurse1("Sister ", "1995-10-10", "NUR-05", "0345-1122334", 65000.0, "Pediatrics", 800.0, "Surgical Ward");
-
+Nurse* nurse1 = new Nurse("Sister ", "1995-10-10", "NUR-05", "0345-1122334", 65000.0, "Pediatrics", 800.0, "Surgical Ward");
     // 4. Create one Patient object
-    Patient pat1("Zubair", "2002-12-12", "PAT-101", "0312-9988776", "Appendicitis", "2026-04-14", "Surgical Ward", false);
+Patient* pat1 = new Patient("Zubair", "2002-12-12", "PAT-101", "0312-9988776", "Appendicitis", "2026-04-14", "Surgical Ward", false);
 
     // 5. Put them into a collection of base-class pointers (Person*)
     vector<Person *> people;
-    people.push_back(&gp1);
-    people.push_back(&surg1);
-    people.push_back(&nurse1);
-    people.push_back(&pat1);
+    people.push_back(gp1);
+    people.push_back(surg1);
+    people.push_back(nurse1);
+    people.push_back(pat1);
 
     // 6. Call display using a loop
     bool allChecksPass = true;
@@ -64,7 +62,7 @@ int main()
             allChecksPass = false;
     }
 
-    bool condition1 = ((gp1.getSummary().find("1500") != string::npos) && (surg1.getSummary().find("Orthopedic") != string::npos) && (surg1.getSummary().find("45000") != string::npos) && (nurse1.getSummary().find("Surgical Ward") != string::npos) && (pat1.getSummary().find("Appendicitis") != string::npos) && (pat1.getSummary().find("2026-04-14") != string::npos));
+    bool condition1 = ((gp1->getSummary().find("1500") != string::npos) && (surg1->getSummary().find("Orthopedic") != string::npos) && (surg1->getSummary().find("45000") != string::npos) && (nurse1->getSummary().find("Surgical Ward") != string::npos) && (pat1->getSummary().find("Appendicitis") != string::npos) && (pat1->getSummary().find("2026-04-14") != string::npos));
 
     // cout << "all check pass" << boolalpha << allChecksPass << endl;
     // cout << "gp" << boolalpha << (gp1.getSummary().find("1500") != string::npos) << endl;
@@ -84,15 +82,15 @@ int main()
     GeneralWard genWard("General Ward", 10, 1200.0);
     SurgicalWard surgWard("Surgical Ward", 10, 5500.0);
 
-    pat1.setWard(&genWard);
-    pat1.addTreatment("Consultation", 2000.0, "Dr. Ali");
-    pat1.addTreatment("Blood Test", 3000.0, "Dr. Ali");
-    Bill b1 = pat1.generateBill(3);
+    pat1->setWard(&genWard);
+    pat1->addTreatment("Consultation", 2000.0, "Dr. Ali");
+    pat1->addTreatment("Blood Test", 3000.0, "Dr. Ali");
+    Bill b1 = pat1->generateBill(3);
 
-    Patient pat2("Hassan", "1998-05-05", "P-102", "0300-5554443", "Surgery Needed", "2026-04-12", "Surgical", false);
-    pat2.setWard(&surgWard);
-    pat2.addTreatment("Minor Procedure", 10000.0, "Dr. Qais");
-    Bill b2 = pat2.generateBill(1);
+Patient* pat2 = new Patient("Hassan", "1998-05-05", "P-102", "0300-5554443", "Surgery Needed", "2026-04-12", "Surgical", false);
+    pat2->setWard(&surgWard);
+    pat2->addTreatment("Minor Procedure", 10000.0, "Dr. Qais");
+    Bill b2 = pat2->generateBill(1);
 
     Bill combined = b1 + b2;
 
@@ -159,11 +157,11 @@ int main()
 
     AppointmentBook book;
 
-bool res1 = book.addAppointment(Appointment(&pat1, &gp1, "2026-04-20", {10, 0, 30}));
+bool res1 = book.addAppointment(Appointment(pat1, gp1, "2026-04-20", {10, 0, 30}));
 
-bool res2 = book.addAppointment(Appointment(&pat2, &gp1, "2026-04-20", {10, 0, 30}));
+bool res2 = book.addAppointment(Appointment(pat2, gp1, "2026-04-20", {10, 0, 30}));
 
-bool res3 = book.addAppointment(Appointment(&pat2, &gp1, "2026-04-20", {11, 0, 30}));
+bool res3 = book.addAppointment(Appointment(pat2, gp1, "2026-04-20", {11, 0, 30}));
     check("TC-05.1 ", res1 == true);
     check("TC-05.2 ", res2 == false);
     check("TC-05.3 ", res3 == true);
@@ -207,9 +205,9 @@ bool res3 = book.addAppointment(Appointment(&pat2, &gp1, "2026-04-20", {11, 0, 3
     check("TC-07.1 ", initiallyAdmitted && notInLive);
     check("TC-07.2 ", dischargeSuccess && inArchive);
 
-    const vector<Patient>& history = h7.getArchivedPatients();
+    const vector<Patient*>& history = h7.getArchivedPatients();
     if (!history.empty()) {
-        check("TC-07.3 ", history.back().getName() == "Zubair Ahmed");
+        check("TC-07.3 ", history.back()->getName() == "Zubair Ahmed");
     }
 
 
@@ -254,8 +252,8 @@ bool res3 = book.addAppointment(Appointment(&pat2, &gp1, "2026-04-20", {11, 0, 3
     cout << "\n[TC-09] Staff Billing Rate Polymorphism" << endl;
 
     vector<Staff *> medicalTeam;
-    medicalTeam.push_back(&gp1);
-    medicalTeam.push_back(&surg1);
+    medicalTeam.push_back(gp1);
+    medicalTeam.push_back(surg1);
 
     double rate1 = medicalTeam[0]->getBillingRate();
     double rate2 = medicalTeam[1]->getBillingRate();
@@ -275,15 +273,15 @@ bool res3 = book.addAppointment(Appointment(&pat2, &gp1, "2026-04-20", {11, 0, 3
     cout << "\n[TC-10] Ward Revenue" << endl;
 
     Hospital h10("Finance Dept");
-    ICU icuWard2("ICU Unit", 5, 8000.0);
-    h10.addWard(&icuWard2);
+   ICU* icuWard2 = new ICU("ICU Unit", 5, 8000.0);
+    h10.addWard(icuWard2);
 
     Patient p10_1("Patient X", "1990", "PX", "000", "Critical Condition", "2026-04-01", "ICU Unit", true);
-    p10_1.setWard(&icuWard2);
+    p10_1.setWard(icuWard2);
     p10_1.addTreatment("Consultation", 1000.0, "Dr. Ali");
 
     Patient p10_2("Patient Y", "1992", "PY", "111", "Critical Condition", "2026-04-02", "ICU Unit", true);
-    p10_2.setWard(&icuWard2);
+    p10_2.setWard(icuWard2);
     p10_2.addTreatment("X-Ray", 2000.0, "Dr. Qais");
 
     h10.admit(p10_1);
@@ -299,5 +297,11 @@ bool res3 = book.addAppointment(Appointment(&pat2, &gp1, "2026-04-20", {11, 0, 3
 
     // cout << "Final ICU Revenue: PKR " << totalRevenue << endl;
     cout << "\n===== Demo Finished =====" << endl;
+    delete gp1;
+delete surg1;
+delete nurse1;
+delete pat1;
+delete pat2;
+
     return 0;
 }

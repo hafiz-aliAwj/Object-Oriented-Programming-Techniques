@@ -29,11 +29,11 @@ vector<Staff*> ReportGenerator::filterStaff(const vector<Staff*>& staff, functio
     return filtered;
 }
 
-double ReportGenerator::calculateWardRevenue(string wardName, const vector<Patient>& dischargedPatients) {
+double ReportGenerator::calculateWardRevenue(string wardName, const vector<Patient*>& dischargedPatients) {
     double totalRevenue = 0.0;
-    for (const auto& p : dischargedPatients) {
-        if (p.getSummary().find(wardName) != string::npos) {
-            totalRevenue += p.generateBill(5).getTotalAmount();
+    for (Patient* p : dischargedPatients) {
+        if (p->getSummary().        find(wardName) != string::npos) {
+            totalRevenue += p->generateBill(5).getTotalAmount();
         }
     }
     return totalRevenue;

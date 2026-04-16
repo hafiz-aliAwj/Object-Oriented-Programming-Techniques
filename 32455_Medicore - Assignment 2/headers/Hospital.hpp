@@ -15,11 +15,12 @@
     class Hospital {
     private:
         string hospitalName;
-        vector<Patient> admittedPatients; 
-        vector<Patient> archivedPatients; 
+        vector<Patient*> admittedPatients; 
+        vector<Patient*> archivedPatients; 
         vector<Ward*> wards;
         vector<Staff*> staffMembers;
         vector<Patient*> getAdmittedPointers();
+        AppointmentBook apptBook;
 
     public:
         Hospital(string name);
@@ -38,8 +39,8 @@
         double getWardRevenue(string wardName);
         vector<Patient*> getStaffPatientHistory(string staffName);
         string getName() const;
-        const vector<Patient>& getAdmittedPatients() const;
-        const vector<Patient>& getArchivedPatients() const;
+        const vector<Patient*>& getAdmittedPatients() const;
+        const vector<Patient*>& getArchivedPatients() const;
     };
 
     #endif
